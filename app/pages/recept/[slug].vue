@@ -1,5 +1,11 @@
 <template>
   <article v-if="recipe" class="mx-auto max-w-2xl">
+    <div class="mb-4 flex items-start justify-between gap-3">
+      <button type="button" class="btn-ghost shrink-0 text-sm" @click="goBack">
+        <span aria-hidden="true">←</span> Zpět
+      </button>
+      <RecipeShare :slug="recipe.slug" :title="recipe.title" class="min-w-0 text-right" />
+    </div>
     <div class="relative -mx-4 sm:mx-0">
       <img :src="photo.url.value ?? recipeImageUrl(recipe)" alt="" class="aspect-[4/3] w-full object-cover sm:rounded-card">
       <button
@@ -84,6 +90,17 @@
 <script setup lang="ts">
 
 const route = useRoute()
+const router = useRouter()
+
+function goBack() {
+  const back = window.history.state?.back
+  if (typeof back === 'string' && back.startsWith('/') && !back.startsWith('//')) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
+
 const api = useRecipeApi()
 const family = useFamily()
 const favorites = useFavorites()
