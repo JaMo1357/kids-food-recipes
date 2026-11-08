@@ -54,7 +54,7 @@ pnpm seed:build
 pnpm exec supabase db push --include-seed
 ```
 
-`seed:build` odmítne surovinu bez uvedených alergenů nebo neznámou surovinu v receptu. Seed je opakovatelný a uživatelská data nemění; recept odebraný z `data/` se jen skryje. Vlastní fotky receptů nahrajte do bucketu `recipe-images` a cestu uložte do `recipes.image_path`; jinak se použije ilustrace.
+`seed:build` odmítne surovinu bez uvedených alergenů nebo neznámou surovinu v receptu. Seed je opakovatelný a uživatelská data nemění; recept odebraný z `data/` se jen skryje. Vlastní fotky receptů nahrajte do bucketu `recipe-images` a cestu uložte do `recipes.image_path`. Jinak se použije ilustrační fotka z `public/photos` a nakonec kresba z `public/illustrations` (viz [docs/content-sources.md](docs/content-sources.md)).
 
 Zdroje a věková pravidla: [docs/content-sources.md](docs/content-sources.md).
 

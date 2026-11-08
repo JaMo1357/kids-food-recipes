@@ -18,10 +18,19 @@ export function useRecipeApi() {
   }
 }
 
-export function recipeImageUrl(recipe: { illustration: string; image_path: string | null }) {
+// Uploaded photos win, then the generated photo for this recipe, followed
+// by the licensed category photo and finally the drawing.
+export function recipeImageUrl(recipe: { slug: string; illustration: string; image_path: string | null }) {
   if (recipe.image_path) {
     const supabase = useSupabaseClient()
     return supabase.storage.from('recipe-images').getPublicUrl(recipe.image_path).data.publicUrl
   }
+  if (generatedRecipePhotos[recipe.slug]) return generatedRecipePhotos[recipe.slug]
+  if (recipePhotos[recipe.illustration]) return `/photos/${recipe.illustration}.webp`
   return `/illustrations/${recipe.illustration}.svg`
+}
+
+// Attribution for a bundled photo, or null when another image is shown.
+export function recipePhotoCredit(recipe: { slug: string; illustration: string; image_path: string | null }) {
+  return recipe.image_path || generatedRecipePhotos[recipe.slug] ? null : recipePhotos[recipe.illustration] ?? null
 }

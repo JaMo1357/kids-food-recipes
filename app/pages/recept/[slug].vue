@@ -33,18 +33,7 @@
       </p>
     </section>
 
-    <section class="card mt-6 p-5">
-      <h2 class="text-xl font-extrabold">Suroviny</h2>
-      <ul class="mt-2 divide-y divide-line">
-        <li v-for="ingredient in recipe.ingredients" :key="ingredient.slug" class="py-2">
-          <span class="font-bold">{{ formatAmount(ingredient) }}</span>
-          {{ ingredient.name }}
-          <span v-if="ingredient.note || ingredient.is_optional" class="text-sm text-muted">
-            ({{ [ingredient.is_optional ? 'nepovinné' : null, ingredient.note].filter(Boolean).join(', ') }})
-          </span>
-        </li>
-      </ul>
-    </section>
+    <RecipeShopping :key="recipe.slug" :title="recipe.title" :servings="recipe.servings" :ingredients="recipe.ingredients" />
 
     <section class="mt-6">
       <h2 class="text-xl font-extrabold">Postup</h2>
@@ -79,11 +68,20 @@
       Upraveno pro děti podle receptu:
       <a :href="recipe.source_url" class="underline" target="_blank" rel="noopener">{{ recipe.source_name }}</a>
     </p>
+    <p v-if="!photo.url.value && !recipe.image_path && generatedRecipePhotos[recipe.slug]" class="mt-2 text-xs text-muted">
+      Ilustrační fotografie vytvořená pomocí AI podle receptu.
+    </p>
+    <p v-if="credit && !photo.url.value" class="mt-2 text-xs text-muted">
+      Ilustrační foto:
+      <a :href="credit.sourceUrl" class="underline" target="_blank" rel="noopener">{{ credit.title }}</a>,
+      autor {{ credit.author }},
+      <a :href="credit.licenseUrl" class="underline" target="_blank" rel="noopener license">{{ credit.license }}</a>,
+      oříznuto a zmenšeno
+    </p>
   </article>
 </template>
 
 <script setup lang="ts">
-import type { RecipeIngredient } from '#shared/types/api'
 
 const route = useRoute()
 const api = useRecipeApi()
@@ -99,6 +97,7 @@ if (!recipe.value) throw createError({ statusCode: 404, statusMessage: 'Recept n
 useHead({ title: `${recipe.value.title} – Lžička` })
 useSeoMeta({ description: recipe.value.description })
 
+const credit = computed(() => recipe.value && recipePhotoCredit(recipe.value))
 const recipeId = computed(() => recipe.value?.id)
 const photo = useRecipePhoto(recipeId)
 const favorite = ref(false)
@@ -135,12 +134,6 @@ const warnings = computed(() => {
   }
   return list
 })
-
-function formatAmount(ingredient: RecipeIngredient) {
-  if (ingredient.amount === null) return ''
-  const amount = String(ingredient.amount).replace('.', ',').replace(/^0,5$/, '½').replace(/^0,25$/, '¼')
-  return [amount, ingredient.unit].filter(Boolean).join(' ')
-}
 
 async function toggleFavorite() {
   if (!recipeId.value) return
